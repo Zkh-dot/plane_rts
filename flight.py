@@ -9,7 +9,7 @@ def crashReport(text='ну тут и сказать нечего'):
     print(text)
 
 class Plain:
-    def __init__(self, properties = {'wingsCapacity': 10}, location = {'x': 0, 'y': 0, 'z': 0}, speed = {'x': 0, 'y': 0, 'z': 0}, acs = {'x': 0, 'y': 0, 'z': 0}):
+    def __init__(self, properties = {'wingsCapacity': 10, 'overloadSpeed': 10}, location = {'x': 0, 'y': 0, 'z': 0}, speed = {'x': 0, 'y': 0, 'z': 0}, acs = {'x': 0, 'y': 0, 'z': 0}):
         self.properties = properties
         self.angleup = 0
         self.anglehor = 0
@@ -18,19 +18,27 @@ class Plain:
         self.location = location
 
     def turn(self, g = 2):
+        speedLambda = 0
         for i in self.speed.keys():
             try:
                 self.speed[i] += self.acs[i] - (abs(self.speed[i]) // self.speed[i]) * g // 2
+                speedLambda += (self.acs[i] - (abs(self.speed[i]) // self.speed[i]) * g // 2) ** 2
             except:
+                speedLambda += self.acs[i]
                 self.speed[i] += self.acs[i]
+        #print('->', speedLambda, self.properties['overloadSpeed'])
+        if sqrt(speedLambda) > self.properties['overloadSpeed']:
+            crashReport('Чет ты себя перегрузил, брат...')
+            return False
         
         self.speed['z'] -=  g 
         
-
         self.location['x'] += self.speed['x']
         self.location['y'] += self.speed['y']
         windLiftMoment = (sqrt((sqrt(2) / 2 * self.speed['x']) ** 2 + (sqrt(2) / 2 * self.speed['y']) ** 2)) // self.properties['wingsCapacity']
         self.location['z'] += self.speed['z'] + windLiftMoment
+
+        return True
 
     
     def calculate(self, angleUp, angleHorisontal, speed):
@@ -74,7 +82,8 @@ def testLaunch():
             speed = 0
             up = 0
         plaineOne.calculate(up, hor, speed)
-        plaineOne.turn()
+        if not plaineOne.turn(): 
+            return False
         if(plaineOne.isOk()):
             print(plaineOne.location)
             print('speed =', pif(plaineOne.speed['x'], plaineOne.speed['y'], plaineOne.speed['z']))
