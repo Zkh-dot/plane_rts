@@ -16,6 +16,7 @@ class Plain:
         self.speed = speed
         self.acs = acs
         self.location = location
+        self.noseDir = {'x': 0, 'y': 0, 'z': 0}
 
     def turn(self, g = 2):
         speedLambda = 0
@@ -26,10 +27,13 @@ class Plain:
             except:
                 speedLambda += self.acs[i]
                 self.speed[i] += self.acs[i]
-        #print('->', speedLambda, self.properties['overloadSpeed'])
-        if sqrt(speedLambda) > self.properties['overloadSpeed']:
-            crashReport('Чет ты себя перегрузил, брат...')
-            return False
+        try:
+            if sqrt(speedLambda) > self.properties['overloadSpeed']:
+                crashReport('Чет ты себя перегрузил, брат...')
+                return False
+        except Exception as e:
+            print('Что-то случилось, мы не уверены что')
+            print(e)
         
         self.speed['z'] -=  g 
         
@@ -51,10 +55,14 @@ class Plain:
         self.acs['x'] = round(speed * cos(self.anglehor) * cos(self.angleup))
         self.acs['y'] = round(speed * sin(self.anglehor) * cos(self.angleup))
         self.acs['z'] = round(speed * sin(self.angleup))
+        self.noseDir['x'] = round(cos(self.anglehor) * cos(self.angleup)) 
+        self.noseDir['y'] = round(sin(self.anglehor) * cos(self.angleup)) 
+        self.noseDir['z'] = round(sin(self.angleup))
 
     def isOk(self):
         if self.location['z'] < -3:
             crashReport('Скорость сближения... а, уже не важно')
+            return False
             
         elif self.location['z'] <= 0:
             if pif(self.speed['x'], self.speed['y'], self.speed['z']) > 5:
@@ -64,17 +72,41 @@ class Plain:
                 crashReport('Нос по ветру, брат...')
                 return False
             print('landed')
+            self.angleup = 0
             self.speed = {'x': 0, 'y': 0, 'z': 0}
             self.location['z'] = 0
         return True
 
+    def lookForvared(self, range = 100, obj = {'x': 0, 'y': 0, 'z': 0}):
+        #   self.acs - это направление носа, сторону которого ведется стрельба
+        #   сперва происходит calculate, потом lookForvared
+        #   можно конечно сперва двгать нос, потом менять скорость, потом стрелять
+        #   но я бы наверное сделал опциональный вызов выстрела и там и там, например
+        #   x0 = obj[x]     xa = self.location['x']     xb = (self.location['x'] + self.noseDir['x']) * range
+        #   кринж ли это? да, конечно, но шо поделать
+        #print(self.acs)
+        tUpPart = 0
+        tDownPart = 0
+        for i in obj.keys():
+            tUpPart += (obj[i] - self.location[i]) * ((self.location[i] + self.noseDir[i]) * range)
+            tDownPart += (((self.location[i] + self.noseDir[i]) * range) - self.location[i]) ** 2
+        tFull = tUpPart / tDownPart
+        disInPowerTwo = 0
+        for i in obj.keys():
+            disInPowerTwo += ((self.location[i] - obj[i] + (((self.location[i] + self.noseDir[i]) * range) - self.location[i])) * tFull) ** 2
+        distance = sqrt(disInPowerTwo)
+        return distance
 
 def testLaunch():
     plaineOne = Plain()
 
     while(True):
-        up = float(input())
-        if up != -1:
+        up = input()
+        if up == 'q':
+            up = pUp
+        elif up != 'p':
+            up = float(up)
+            pUp = up
             hor = float(input())
             speed = int(input())
         else:
@@ -84,6 +116,7 @@ def testLaunch():
         plaineOne.calculate(up, hor, speed)
         if not plaineOne.turn(): 
             return False
+        print('расстояние =', plaineOne.lookForvared())
         if(plaineOne.isOk()):
             print(plaineOne.location)
             print('speed =', pif(plaineOne.speed['x'], plaineOne.speed['y'], plaineOne.speed['z']))
@@ -94,6 +127,3 @@ def testLaunch():
 
 if __name__ == "__main__":
     testLaunch()
-    
-        
-
