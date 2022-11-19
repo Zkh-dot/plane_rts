@@ -10,7 +10,8 @@ def crashReport(text='ну тут и сказать нечего'):
     print(text)
 
 class Plain:
-    def __init__(self, properties = {'wingsCapacity': 10, 'overloadSpeed': 10}, location = {'x': 0, 'y': 0, 'z': 0}, speed = {'x': 0, 'y': 0, 'z': 0}, acs = {'x': 0, 'y': 0, 'z': 0}):
+    def __init__(self, properties = {'wingsCapacity': 10, 'overloadSpeed': 10}, location = {'x': 0, 'y': 0, 'z': 0}, speed = {'x': 0, 'y': 0, 'z': 0}, acs = {'x': 0, 'y': 0, 'z': 0}, name = 'somePlane'):
+        self.name = name
         self.properties = properties
         self.angleup = 0
         self.anglehor = 0
@@ -19,7 +20,7 @@ class Plain:
         self.location = location
         self.noseDir = {'x': 0, 'y': 0, 'z': 0}
 
-    def turn(self, g = 2):
+    def move(self, g = 2):
         speedLambda = 0
         for i in self.speed.keys():
             try:
@@ -60,7 +61,9 @@ class Plain:
         self.noseDir['y'] = round(sin(self.anglehor) * cos(self.angleup)) 
         self.noseDir['z'] = round(sin(self.angleup))
 
-    def isOk(self):
+    def isOk(self, isShot = False):
+        if isShot:
+            crashReport('9 граммов свинца кажутся хорошей участью по сравнению с твоей, брат...')
         if self.location['z'] < -3:
             crashReport('Скорость сближения... а, уже не важно')
             return False
@@ -85,6 +88,7 @@ class Plain:
         #   но я бы наверное сделал опциональный вызов выстрела и там и там, например
         #   x0 = obj[x]     
         #   кринж ли это? да, конечно, но шо поделать
+        #   upd: текущая версия не кринж, текущая версия заебок
         #print(self.acs)
         a = [self.noseDir['x'] * range, self.noseDir['y'] * range, self.noseDir['z'] * range]
         aLength = pif(a[0], a[1], a[2])
@@ -97,10 +101,17 @@ class Plain:
         except Exception():
             print('Кажется, вы забыли сделать calculate перед выстрелом. Ну или просто что-то ебнулось')
             return 10000000
+        
+    def shoot(self, aim, range = 100, accur = 3):
+        self.calculate(0, 0, 0)     #   приводим нос в актуальное положение
+        if self.lookForvared(range, aim.location) <= accur:
+            print(aim.name, 'уничтожен! Пау-пау-пау!')
+            aim.isOk(True)
+        else:
+            return False
 
 def testLaunch():
     plaineOne = Plain()
-
     while(True):
         up = input()
         if up == 'q':
@@ -115,7 +126,7 @@ def testLaunch():
             speed = 0
             up = 0
         plaineOne.calculate(up, hor, speed)
-        if not plaineOne.turn(): 
+        if not plaineOne.move(): 
             return False
         print('расстояние =', plaineOne.lookForvared())
         if(plaineOne.isOk()):
@@ -130,8 +141,10 @@ def testLaunch():
             break
 
 
+
 if __name__ == "__main__":
+    pass
     #testLaunch()
-    pln = Plain()
-    pln.calculate(0, 0, 0)
-    print(pln.lookForvared(int(input()), {'x': int(input()), 'y': int(input()), 'z': int(input())}))
+    #pln = Plain()
+    #pln.calculate(0, 0, 0)
+    #print(pln.lookForvared(int(input()), {'x': int(input()), 'y': int(input()), 'z': int(input())}))
