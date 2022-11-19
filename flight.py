@@ -1,4 +1,5 @@
 from math import sqrt, sin, cos, pi
+from numpy import cross
 
 def pif(a = 0, b = 0, c = 0):
     return sqrt(a ** 2 + b ** 2 + c ** 2)
@@ -82,20 +83,20 @@ class Plain:
         #   сперва происходит calculate, потом lookForvared
         #   можно конечно сперва двгать нос, потом менять скорость, потом стрелять
         #   но я бы наверное сделал опциональный вызов выстрела и там и там, например
-        #   x0 = obj[x]     xa = self.location['x']     xb = (self.location['x'] + self.noseDir['x']) * range
+        #   x0 = obj[x]     
         #   кринж ли это? да, конечно, но шо поделать
         #print(self.acs)
-        tUpPart = 0
-        tDownPart = 0
-        for i in obj.keys():
-            tUpPart += (obj[i] - self.location[i]) * ((self.location[i] + self.noseDir[i]) * range)
-            tDownPart += (((self.location[i] + self.noseDir[i]) * range) - self.location[i]) ** 2
-        tFull = tUpPart / tDownPart
-        disInPowerTwo = 0
-        for i in obj.keys():
-            disInPowerTwo += ((self.location[i] - obj[i] + (((self.location[i] + self.noseDir[i]) * range) - self.location[i])) * tFull) ** 2
-        distance = sqrt(disInPowerTwo)
-        return distance
+        a = [self.noseDir['x'] * range, self.noseDir['y'] * range, self.noseDir['z'] * range]
+        aLength = pif(a[0], a[1], a[2])
+        m3m1 = [obj['x'] - self.location['x'], obj['y'] - self.location['y'], obj['z'] - self.location['z']]
+        #print(a, m3m1, cross(a, m3m1))
+        ans = cross(a, m3m1)
+        axm3m1 = pif(ans[0], ans[1], ans[2])
+        try:
+            return axm3m1 / aLength
+        except Exception():
+            print('Кажется, вы забыли сделать calculate перед выстрелом. Ну или просто что-то ебнулось')
+            return 10000000
 
 def testLaunch():
     plaineOne = Plain()
@@ -119,11 +120,18 @@ def testLaunch():
         print('расстояние =', plaineOne.lookForvared())
         if(plaineOne.isOk()):
             print(plaineOne.location)
+            print('range =', plaineOne.lookForvared())
             print('speed =', pif(plaineOne.speed['x'], plaineOne.speed['y'], plaineOne.speed['z']))
             print('vector =', plaineOne.angleup / pi, plaineOne.anglehor / pi)
+            print('vectorV2:', end=" ")
+            for i in plaineOne.noseDir.keys():
+                print(i, '=', plaineOne.noseDir[i], end=', ')
         else:
             break
 
 
 if __name__ == "__main__":
-    testLaunch()
+    #testLaunch()
+    pln = Plain()
+    pln.calculate(0, 0, 0)
+    print(pln.lookForvared(int(input()), {'x': int(input()), 'y': int(input()), 'z': int(input())}))
