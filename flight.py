@@ -10,7 +10,12 @@ def crashReport(text='ну тут и сказать нечего'):
     print(text)
 
 class Plain:
-    def __init__(self, properties = {'wingsCapacity': 10, 'overloadSpeed': 10}, location = {'x': 0, 'y': 0, 'z': 0}, speed = {'x': 0, 'y': 0, 'z': 0}, acs = {'x': 0, 'y': 0, 'z': 0}, name = 'somePlane'):
+    def __init__(self, 
+            properties = {'wingsCapacity': 10, 'overloadSpeed': 10}, 
+            location = {'x': 0, 'y': 0, 'z': 0}, 
+            speed = {'x': 0, 'y': 0, 'z': 0}, 
+            acs = {'x': 0, 'y': 0, 'z': 0}, 
+            name = 'somePlane'):
         self.name = name
         self.properties = properties
         self.angleup = 0
@@ -144,7 +149,7 @@ def testLaunch():
 
 if __name__ == "__main__":
     pass
-    #testLaunch()
+    testLaunch()
     #pln = Plain()
     #pln.calculate(0, 0, 0)
     #print(pln.lookForvared(int(input()), {'x': int(input()), 'y': int(input()), 'z': int(input())}))
