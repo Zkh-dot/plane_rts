@@ -1,10 +1,29 @@
-import telebot
-bot = telebot.TeleBot('1059442764:AAFlPFEROwxIGxPIK8mgEmO-pusoG77docg')
-@bot.message_handler(content_types=['text'])
-def get_text_messages(message):
-    if message.text == 'Привет!':
-        bot.send_message(message.from_user.id, 'Салам алейкум, брат!')
-    else:
-        bot.send_message(message.from_user.id, 'Что-то на латышском')
+from aiogram import Bot, types
+from aiogram.dispatcher import Dispatcher
+from aiogram.utils import executor
 
-bot.polling(none_stop=True, interval=0)
+from config import TOKEN
+
+
+bot = Bot(token=TOKEN)
+dp = Dispatcher(bot)
+
+@dp.message_handler(commands=['start'])
+async def process_start_command(message: types.Message):
+    await message.reply("Привет!\nЯ бот для боев на самолетиках! \nЧтобы начать свой бой напиши /battle\nЧтобы подключиться к бою нажмите /connect\nЧтобы изменть конфигурацию своего самолета нажмите /config")
+
+@dp.message_handler(commands=['battle'])
+async def process_help_command(message: types.Message):
+    await message.reply("Тут будет старт боя")
+
+@dp.message_handler(commands=['connect'])
+async def process_help_command(message: types.Message):
+    await message.reply("Тут будет подключение к бою")
+
+@dp.message_handler(commands=['config'])
+async def process_help_command(message: types.Message):
+    await message.reply("Тут будут статы самолетика")
+
+
+if __name__ == '__main__':
+    executor.start_polling(dp)
